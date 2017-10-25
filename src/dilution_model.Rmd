@@ -13,6 +13,9 @@ output:
     fig_width: 11
 ---
 
+Looking at dilution ratios and cocktails is a function of the alcohol by volume.
+
+The data below is from the book [_Liquid Intelligence_](https://www.amazon.com/Liquid-Intelligence-Science-Perfect-Cocktail/dp/0393089037) by Dave Arnold.
 
 # setting up the environment
 
