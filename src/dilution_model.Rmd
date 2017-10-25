@@ -1,0 +1,102 @@
+---
+title: "Taking a look at dilution ratios in cocktails"
+
+date: "`r Sys.Date()`"
+author:
+- Harold Pimentel
+
+output:
+  html_document:
+    toc: false
+    theme: default
+    fig_height: 7
+    fig_width: 11
+---
+
+
+# setting up the environment
+
+Required packages:
+
+```{r}
+library('dplyr')
+```
+
+Code to fit a second order polynomial.
+
+```{r}
+polynomial_fit <- function(df, which_method) {
+  df <- dplyr::filter(df, method == which_method)
+  model <- lm(dilution_ratio ~ poly(start_abv, 2), data = df)
+  df <- mutate(df, predicted = predict(model, df))
+  plot(df$start_abv, df$dilution_ratio)
+  lines(df$start_abv, df$predicted)
+  list(data = df, model = model)
+}
+```
+
+Load the data.
+
+```{r}
+profiles <- read.csv('../data/profile.csv', header = TRUE, stringsAsFactors = FALSE)
+profiles <- mutate(profiles, start_abv = start_abv / 100, finish_abv = finish_abv / 100)
+profiles <- mutate(profiles, dilution_ratio = (finished_volume - mix_volume) / mix_volume)
+```
+
+Fit the model using the stirred data.
+
+```{r}
+stirred <- polynomial_fit(profiles, 'stirred')
+summary(stirred$model)
+```
+
+For the model using the shaken data.
+
+```{r}
+shaken <- polynomial_fit(profiles, 'shaken')
+summary(shaken$model)
+```
+
+# Taking a look at the results
+
+Using the model from the book, the `predicted_book` dilution ratio is too large resulting in a very large `predicted_book_finish`, the predicted finished volume (using the books model).
+
+```{r}
+shaken_model_book <- function(abv) 1.567 * abv * abv + 1.742 * abv + 0.203
+shaken$data %>%
+  select(name, start_abv, mix_volume, finished_volume, dilution_ratio, predicted) %>%
+  mutate(
+    predicted_finish = mix_volume + mix_volume * predicted,
+    predicted_book = shaken_model_book(start_abv),
+    predicted_book_finish = mix_volume + mix_volume * predicted_book
+  ) %>%
+  kable(digits = 2)
+```
+
+Making the second order coefficient negative seems to fix the problem:
+
+```{r}
+shaken_model_book <- function(abv) -1.567 * abv * abv + 1.742 * abv + 0.203
+shaken$data %>%
+  select(name, start_abv, mix_volume, finished_volume, dilution_ratio, predicted) %>%
+  mutate(
+    predicted_finish = mix_volume + mix_volume * predicted,
+    predicted_book = shaken_model_book(start_abv),
+    predicted_book_finish = mix_volume + mix_volume * predicted_book
+  ) %>%
+  kable(digits = 2)
+```
+
+Stirred data seems okay.
+
+```{r}
+stirred_model_book <- function(abv) -1.21 * abv * abv + 1.246 * abv + 0.145
+stirred$data %>%
+  select(name, start_abv, mix_volume, finished_volume, dilution_ratio, predicted) %>%
+  mutate(
+    predicted_finish = mix_volume + mix_volume * predicted,
+    predicted_book = stirred_model_book(start_abv),
+    predicted_book_finish = mix_volume + mix_volume * predicted_book
+  ) %>%
+  kable(digits = 2)
+```
