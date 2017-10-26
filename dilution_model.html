@@ -142,7 +142,7 @@ $(document).ready(function () {
 <p>Code to fit a second order polynomial.</p>
 <pre class="r"><code>polynomial_fit &lt;- function(df, which_method) {
   df &lt;- dplyr::filter(df, method == which_method)
-  model &lt;- lm(dilution_ratio ~ poly(start_abv, 2), data = df)
+  model &lt;- lm(dilution_ratio ~ poly(start_abv, 2, raw = TRUE), data = df)
   df &lt;- mutate(df, predicted = predict(model, df))
   plot(df$start_abv, df$dilution_ratio)
   lines(df$start_abv, df$predicted)
@@ -158,17 +158,18 @@ profiles &lt;- mutate(profiles, dilution_ratio = (finished_volume - mix_volume) 
 <pre class="r"><code>summary(stirred$model)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = dilution_ratio ~ poly(start_abv, 2), data = df)
+## lm(formula = dilution_ratio ~ poly(start_abv, 2, raw = TRUE), 
+##     data = df)
 ## 
 ## Residuals:
 ##        Min         1Q     Median         3Q        Max 
 ## -7.592e-04 -4.090e-04  1.400e-07  4.190e-04  9.026e-04 
 ## 
 ## Coefficients:
-##                       Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)          0.4530309  0.0001299 3487.99  &lt; 2e-16 ***
-## poly(start_abv, 2)1  0.0785318  0.0005195  151.16  &lt; 2e-16 ***
-## poly(start_abv, 2)2 -0.0128295  0.0005195  -24.69 2.62e-12 ***
+##                                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                      0.150394   0.006303   23.86 4.05e-12 ***
+## poly(start_abv, 2, raw = TRUE)1  1.221592   0.033539   36.42 1.79e-14 ***
+## poly(start_abv, 2, raw = TRUE)2 -1.089842   0.044133  -24.69 2.62e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -181,17 +182,18 @@ profiles &lt;- mutate(profiles, dilution_ratio = (finished_volume - mix_volume) 
 <pre class="r"><code>summary(shaken$model)</code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = dilution_ratio ~ poly(start_abv, 2), data = df)
+## lm(formula = dilution_ratio ~ poly(start_abv, 2, raw = TRUE), 
+##     data = df)
 ## 
 ## Residuals:
 ##        Min         1Q     Median         3Q        Max 
 ## -2.182e-03 -1.221e-04  6.894e-05  4.055e-04  7.933e-04 
 ## 
 ## Coefficients:
-##                       Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)          0.5645970  0.0001318  4284.2  &lt; 2e-16 ***
-## poly(start_abv, 2)1  0.1455472  0.0006589   220.9  &lt; 2e-16 ***
-## poly(start_abv, 2)2 -0.0095517  0.0006589   -14.5 9.75e-13 ***
+##                                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                      0.201643   0.008663   23.27  &lt; 2e-16 ***
+## poly(start_abv, 2, raw = TRUE)1  1.747518   0.061594   28.37  &lt; 2e-16 ***
+## poly(start_abv, 2, raw = TRUE)2 -1.569830   0.108295  -14.50 9.75e-13 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 

@@ -30,7 +30,7 @@ Code to fit a second order polynomial.
 ```{r}
 polynomial_fit <- function(df, which_method) {
   df <- dplyr::filter(df, method == which_method)
-  model <- lm(dilution_ratio ~ poly(start_abv, 2), data = df)
+  model <- lm(dilution_ratio ~ poly(start_abv, 2, raw = TRUE), data = df)
   df <- mutate(df, predicted = predict(model, df))
   plot(df$start_abv, df$dilution_ratio)
   lines(df$start_abv, df$predicted)
